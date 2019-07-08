@@ -36,7 +36,7 @@ Size 0x200. Stores metadata about the level itself. Some of this is still unknow
 |--------|------|-------------|
 | 00 | u8 | Y position of start (in tiles) |
 | 01 | u8 | Y position of goal (in tiles) |
-| 02 | u16 | Might be a position in terms of game tiles * 10 |
+| 02 | u16 | X position of goal (in tiles * 10) |
 | 04 | u16 | Time limit; defaults to 300 |
 | 06 | u16 | Target amount required for clear condition |
 | 08 | u16 | Creation year |
@@ -55,8 +55,8 @@ Size 0x200. Stores metadata about the level itself. Some of this is still unknow
 | .. | .. | .. zero in all files .. |
 | F0 | u8 | Unknown, usually FF but sometimes set to other things |
 | F1 | char[3] | Game style, null-terminated: `M1`, `M3`, `MW`, `WU`, `3W` |
-| F2 | wchar_t[33] | Course name, null-terminated |
-| 136 | wchar_t[76] | Course description, null-terminated |
+| F4 | wchar16[33] | Course name, null-terminated, UCS-2 |
+| 136 | wchar16[76] | Course description, null-terminated, UCS-2 |
 | .. | .. | .. zero up to 0x200 (exclusive) |
 
 ## Clear Conditions
@@ -158,18 +158,18 @@ This structure is of size 0x2DEE0.
 
 | Offset | Type | Description |
 |--------|------|-------------|
-| 00 | u8 | course theme (00..09) |
+| 00 | u8 | course theme: 0 = ground, 1 = underground, 2 = castle, 3 = airship, 4 = underwater, 5 = ghost house, 6 = snow, 7 = desert, 8 = sky, 9 = forest |
 | 01 | u8 | autoscroll type (00..04) |
-| 02 | u8 | values seen: 00, 01 |
+| 02 | u8 | values seen: 00, 01 - editor seems to sometimes sets it to 1 for horizontal levels and 0 for vertical...? not sure what the criteria are |
 | 03 | u8 | level orientation: 00 = horizontal, 01 = vertical |
-| 04 | u8 | ranges from 00 to 0C in main areas, 00 to A1 in sub areas |
-| 05 | u8 | values seen: 00, 01, 02 |
-| 06 | u8 | values seen: 00, 01, 02, 03 |
-| 07 | u8 | values seen: 00, 01, 02, 04, 06, 08, 09, 0C in main areas; 00, 01, 05, 0D, 10, 1C, 95, A1 in sub areas |
-| 08 | u32 | usable width |
-| 0C | u32 | usable height |
-| 10 | u32 | seems to be always zero |
-| 14 | u32 | zero everywhere except for sub-areas in Ancient Seesaw Fortress (0x230), Bing Bang Boom (0xE0), Fire Koopa Clown Carnage (0x1C0) |
+| 04 | u8 | maximum height of water/lava |
+| 05 | u8 | water/lava mode: 0 = static, 1 = continuous rise, 2 = rise/lower |
+| 06 | u8 | water/lava movement speed: 0 = static, 1 = slow, 2 = medium, 3 = fast |
+| 07 | u8 | minimum height of water/lava |
+| 08 | u32 | right boundary (always 0x300 for vertical areas) |
+| 0C | u32 | top boundary (always 0x1B0 for horizontal areas) |
+| 10 | u32 | left boundary (always 0) |
+| 14 | u32 | bottom boundary (always 0, except for certain vertical sub-areas) |
 | 18 | u32 | some kinda bitfield :: &2 means night mode, &1 is unknown |
 | 1C | u32 | object count |
 | 20 | u32 | free-standing sound effect count |
@@ -258,10 +258,11 @@ Examples observed:
 - 0x80000 : 50 Coin (tested on 10 Coin)
 - 0x40000 : Door is P-switch controlled
 - 0x80000 : Door is key controlled
-- 0x100000 : Second side of door
 - 0x100000 : Slope goes down-right (steep)
 - 0x200000 : Slope goes up-right (gentle - unnecessary?)
 - 0x300000 : Slope goes down-right (gentle)
+- 0x100000, 0x200000, 0x300000 ... 0xA00000 : Warp pipe ID (10 max, connects to corresponding pipe in other area)
+- 0x000000, 0x200000 ... 0x700000 : Door ID (8 max, 0 connects to 1, 2 connects to 3, 4 connects to 5, 6 connects to 7)
 - 0 : Spike pillar faces down
 - 0x400000 : Spike pillar faces left
 - 0x800000 : Spike pillar faces up
