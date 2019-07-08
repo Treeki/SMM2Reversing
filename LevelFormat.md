@@ -225,6 +225,101 @@ The extended data field is usually zero, but is used by the following objects:
 
 There may be more; these are just the examples that showed up in the courses in romfs.
 
+Default flags: 0x06000040
+
+Examples observed:
+
+- 2 : Wings (tested on Coin)
+- 4 : Music block (tested on Note Block)
+- 4 : Goombrat (tested on Goomba)
+- 4 : Red shell (tested on Koopa)
+- 4 : Red Cheep (tested on Cheep-Cheep)
+- 4 : Shell only (tested on Buzzy Beetle)
+- 4 : Blue (tested on Spike Top)
+- 4 : Blooper Nanny (tested on Blooper)
+- 4 : Shoots fireballs (tested on Piranha Plant)
+- 4 : Deactivate burner
+- 8 : Firebar rotates anti-clockwise
+- 8 : Conveyor belt faces right
+- 8 : Burner faces right
+- 0x10 : Burner faces down
+- 0x18 : Burner faces left
+- 0x20 : Pipe faces left
+- 0x40 : Pipe faces up (also set on most other objects)
+- 0x60 : Pipe faces down
+- 0x400 : Make object larger (tested on Goomba)
+- 0x4000 : Red Yoshi (tested on Yoshi Egg)
+- 0x8000 : Para (tested on Coin)
+- 0x40000 : Mushroom addition (tested on Fire Flower)
+- 0x40000 : Conveyor belt goes fast
+- 0x40000 : Yellow platform (tested on Mushroom Platform)
+- 0x80000 : Green platform (tested on Mushroom Platform)
+- 0x40000 : 30 Coin (tested on 10 Coin)
+- 0x80000 : 50 Coin (tested on 10 Coin)
+- 0x40000 : Door is P-switch controlled
+- 0x80000 : Door is key controlled
+- 0x100000 : Second side of door
+- 0x100000 : Slope goes down-right (steep)
+- 0x200000 : Slope goes up-right (gentle - unnecessary?)
+- 0x300000 : Slope goes down-right (gentle)
+- 0 : Spike pillar faces down
+- 0x400000 : Spike pillar faces left
+- 0x800000 : Spike pillar faces up
+- 0xC00000 : Spike pillar faces right
+- 0 : One-way Wall faces right
+- 0x400000 : One-way Wall faces down
+- 0x800000 : One-way Wall faces left
+- 0xC00000 : One-way Wall faces up
+- 0x100000 : Conveyor belt slope goes up-right (steep)
+- 0x200000 : Conveyor belt slope goes down-right (steep)
+- 0x400000 : Conveyor belt is switch-controlled
+- 0 : Firebar is 1 tile long
+- 0x400000 : Firebar is 2 tiles long
+- 0x800000 : Firebar is 3 tiles long
+- 0xC00000 : Firebar is 4 tiles long
+- 0x1000000 : Firebar is 5 tiles long
+- 0x1400000 : Firebar is 6 tiles long
+- 0x1800000 : Firebar is 7 tiles long
+- 0x1C00000 : Firebar is 8 tiles long
+- 0 : Cannon faces up-left
+- 0x400000 : Cannon faces up
+- 0x800000 : Cannon faces up-right
+- 0xC00000 : Cannon faces right
+- 0x1000000 : Cannon faces left
+
+Checkpoint flags:
+
+- 0x6400000 : Rotated 90 degrees clockwise
+- 0x6800000 : Rotated 180 degrees
+- 0x6C00000 : Rotated 270 degrees
+
+Pipes:
+
+- 0x40000 : Red Pipe
+- 0x80000 : Blue Pipe
+- 0xC0000 : Yellow Pipe
+
+- 0x06000000 : Facing Right
+- 0x06000060 : Facing Down
+- 0x06000020 : Facing Left
+
+Thwomps:
+
+- 0x06000058 : Normal Thwomp
+- 0x06000040 : Left Thwomp
+- 0x06000050 : Right Thwomp
+
+Arrow Signs:
+
+- 0x06000040 : Facing right
+- 0x06400040 : Facing down-right
+- 0x06800040 : Facing down
+- 0x06C00040 : Facing down-left
+- 0x07000040 : Facing left
+- 0x07400040 : Facing up-left
+- 0x07800040 : Facing up
+- 0x07C00040 : Facing up-right
+
 ## Freestanding Sound Effects
 
 | Offset | Type | Description |
