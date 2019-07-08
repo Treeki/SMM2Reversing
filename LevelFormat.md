@@ -10,7 +10,7 @@ See that repository for working decryption code. The configuration block it uses
 |--------|------|-------------|
 | 00 | u8[16] | AES IV |
 | 10 | u32[4] | Randomiser state (for key generation) |
-| 20 | u8[16] | Some sort of MAC |
+| 20 | u8[16] | AES-CMAC digest |
 
 ## File Layout
 
@@ -34,8 +34,8 @@ Size 0x200. Stores metadata about the level itself. Some of this is still unknow
 
 | Offset | Type | Description |
 |--------|------|-------------|
-| 00 | u8 | Unknown setting; defaults to 2 |
-| 01 | u8 | Unknown setting; defaults to 2 |
+| 00 | u8 | Y position of start (in tiles) |
+| 01 | u8 | Y position of goal (in tiles) |
 | 02 | u16 | Might be a position in terms of game tiles * 10 |
 | 04 | u16 | Time limit; defaults to 300 |
 | 06 | u16 | Target amount required for clear condition |
@@ -46,7 +46,7 @@ Size 0x200. Stores metadata about the level itself. Some of this is still unknow
 | 0D | u8 | Creation minute |
 | 0E | u8 | Unknown byte |
 | 0F | u8 | Clear condition type (more below) |
-| 10 | u32 | Clear condition object |
+| 10 | u32 | Clear condition object (CRC32 of more below) |
 | 14 | u32 | Unknown |
 | 18 | u32 | Unknown |
 | 1C | u32 | Always seems to be zeroes |
@@ -55,10 +55,9 @@ Size 0x200. Stores metadata about the level itself. Some of this is still unknow
 | .. | .. | .. zero in all files .. |
 | F0 | u8 | Unknown, usually FF but sometimes set to other things |
 | F1 | char[3] | Game style, null-terminated: `M1`, `M3`, `MW`, `WU`, `3W` |
-| .. | .. | .. zero up to 0x114 (exclusive) .. |
-| .. | .. | .. mostly zero (see below) up to 0x200 (exclusive) |
-
-There's a bunch of data in that last block, but only in certain levels. I can't spot any consistent pattern to it. Where present, it starts at 0x114, except for quest_071 (Dirty Donuts), where it starts at 0x198. Perhaps this will become apparent at some point...
+| F2 | wchar_t[33] | Course name, null-terminated |
+| 136 | wchar_t[76] | Course description, null-terminated |
+| .. | .. | .. zero up to 0x200 (exclusive) |
 
 ## Clear Conditions
 
@@ -66,30 +65,88 @@ These appear to be controlled by three values in the level header: the condition
 
 The following combinations are seen in the game's files:
 
-| Type | Object | Outcome |
-|------|--------|---------|
-| 1 | `F55B3863` | Must collect X coins |
-| 1 | `EF026A7F` | Must have X Toads |
-| 1 | `4B115542` | Must defeat X Spinies |
-| 1 | `C2A80228` | Must handstand on X trees |
-| 1 | `4B980B7F` | Must defeat X Bowsers |
-| 1 | `103BBA8C` | Must defeat X Cheeps |
-| 1 | `E25C5F60` | Must defeat X Dry Bones |
-| 1 | `387C22CA` | Must defeat X Bloopers |
-| 1 | `E47C2BE8` | Must defeat X Piranha Creepers |
-| 1 | `7A128199` | Must defeat X Lava Bubbles |
-| 1 | `6DAA9A3F` | Must defeat X Pom Poms |
-| 1 | `7F07ACBF` | Must defeat X Goombas |
-| 2 | `46219146` | Must be carrying the stone |
-| 2 | `DE56FFB5` | Must be on a Koopa Car |
-| 2 | `DE0ABFC6` | Must wear a Spiny Shell |
-| 2 | `97F8A309` | Must wear a Dry Bones Shell |
-| 2 | `4C8772A3` | Must be on a Lakitu's Cloud |
-| 3 | `08327AE6` | Do not touch the ground |
-| 3 | `97F4CF7A` | Do not use Swinging Claws |
-| 3 | `3AF23BDE` | Do not leave the water |
+| Type | String | Hash | Outcome |
+|------|--------|------|---------|
+| | None | `DFA2AFF1` | *unchecked* |
+| 1 | EnemyKuribo | `7F07ACBF` | Must defeat X Goombas |
+| | EnemyKakibo | `C77685E8` | *unchecked* |
+| | EnemyNokonoko | `CCE12A46` | *unchecked* |
+| | EnemyMet | `C7DAD20F` | *unchecked* |
+| 1 | EnemyTogezo | `4B115542` | Must defeat X Spinies |
+| | EnemyPakkun | `DF6717DE` | *unchecked* |
+| | EnemyFirePakkun | `E50302F7` | *unchecked* |
+| | EnemyBlackPakkun | `CE9A707B` | *unchecked* |
+| 1 | EnemyNobinobiPakkun | `E47C2BE8` | Must defeat X Piranha Creepers |
+| 1 | EnemyKaron | `E25C5F60` | Must defeat X Dry Bones |
+| | EnemyFishBone | `563755F2` | *unchecked* |
+| | EnemyPoo | `A3AEC34A` | *unchecked* |
+| | EnemyChoropoo | `5A085610` | *unchecked* |
+| | EnemyBros | `634A6671` | *unchecked* |
+| | EnemyMegaBros | `A09BB51F` | *unchecked* |
+| | EnemyJugem | `794C6EB3` | *unchecked* |
+| 1 | EnemyGesso | `387C22CA` | Must defeat X Bloopers |
+| 1 | EnemyPukupuku | `103BBA8C` | Must defeat X Cheeps |
+| | EnemyTogemet | `FE75363E` | *unchecked* |
+| | EnemyArihei | `4C44DA92` | *unchecked* |
+| 1 | EnemyBubble | `7A128199` | Must defeat X Lava Bubbles |
+| | EnemyWanwan | `CE2E5A15` | *unchecked* |
+| | EnemyHanachan | `CF81610A` | *unchecked* |
+| | EnemyBombhei | `48D111E0` | *unchecked* |
+| | EnemyDossun | `7F88648A` | *unchecked* |
+| | EnemyTeresa | `501C7C00` | *unchecked* |
+| | EnemyTeren | `756120EE` | *unchecked* |
+| | EnemyMagnumKiller | `FFE76309` | *unchecked* |
+| | EnemyKameck | `F571D608` | *unchecked* |
+| | EnemySun | `66C2B75E` | *unchecked* |
+| | EnemyPyonchu | `F0F35CBA` | *unchecked* |
+| | EnemyHacchin | `E3F62C75` | *unchecked* |
+| | EnemyDonketsu | `4067AB4E` | *unchecked* |
+| | EnemyUganFish | `3F50B513` | *unchecked* |
+| | EnemyFugumannen | `3F4124E8` | *unchecked* |
+| | EnemyHopper | `467AFB58` | *unchecked* |
+| 1 | EnemyKoopa | `4B980B7F` | Must defeat X Bowsers |
+| | EnemyKoopaJr | `CA315249` | *unchecked* |
+| | EnemyBunbun | `3C164EB1` | *unchecked* |
+| 1 | EnemyPunpun | `6DAA9A3F` | Must defeat X Pom Poms |
+| | EnemyKiller | `405DCE65` | *unchecked* |
+| 2 | ItemSuperKinoko | `ED1023EA` | Must be Super Mario |
+| | ItemOneUpKinoko | `62B74A93` | *unchecked* |
+| | ItemFireFlower | `2A8E77BB` | *unchecked* |
+| | ItemSuperStar | `C73BE7EC` | *unchecked* |
+| | ItemDekaKinoko | `7C8612D5` | *unchecked* |
+| | ItemLeaf | `35A5AF47` | *unchecked* |
+| | ItemFeather | `BB926013` | *unchecked* |
+| 2 | ItemPropeller | `3A2F3996` | Must be Propeller Mario |
+| | ItemSuperBell | `7DDB5D7F` | *unchecked* |
+| | ItemSuperHammer | `B7402052` | *unchecked* |
+| | ItemSuperBallFlower | `6A1CE415` | *unchecked* |
+| | ObjectPowBlock | `66477BE4` | *unchecked* |
+| | ObjectPowBlockRed | `48B4157B` | *unchecked* |
+| | ObjectPSwitch | `63F3D532` | *unchecked* |
+| | ObjectWoodBox | `E6F2EEBE` | *unchecked* |
+| | ObjectJumpStep | `553A9590` | *unchecked* |
+| | AdditionalItemShoe | `1A098D50` | *unchecked* |
+| 2 | AdditionalItemYoshi | `FAE86A49` | Must be on Yoshi |
+| | AdditionalItemHelmetMet | `B4FA3D4B` | *unchecked* |
+| 2 | AdditionalItemHelmetTogezo | `DE0ABFC6` | Must wear a Spiny Shell |
+| | AdditionalItemKoopaClown | `D9893249` | *unchecked* |
+| 2 | AdditionalItemJugemCloud | `4C8772A3` | Must be on a Lakitu's Cloud |
+| 2 | AdditionalItemKoopaCar | `DE56FFB5` | Must be on a Koopa Car |
+| 2 | AdditionalItemKaronShoe | `97F8A309` | Must wear a Dry Bones Shell |
+| 1 | Coin | `F55B3863` | Must collect X coins |
+| | Coin10 | `C78F5040` | *unchecked* |
+| | Coin30 | `F5B932C2` | *unchecked* |
+| | Coin50 | `A3E39544` | *unchecked* |
+| 3 | Damage | `1664515A` | Do not take damage |
+| 3 | Land | `08327AE6` | Do not touch the ground |
+| | ShellNokonoko | `3EAB9AA1` | *unchecked* |
+| 3 | Crane | `97F4CF7A` | Do not use Swinging Claws |
+| 3 | Water | `3AF23BDE` | Do not leave the water |
+| 1 | BellTree | `C2A80228` | Must handstand on X trees |
+| 1 | QuestChaseKinopio | `EF026A7F` | Must have X Toads |
+| 2 | QuestMaterialStone | `46219146` | Must be carrying the stone |
 
-I have a hunch that the 'Object' is some sort of hash of a name because Nintendo likes using those for things. Must investigate!
+The examples listed with a type and description are those seen in the files on romfs; others are guessed based on a list found in the binary. The objects are referenced by storing the CRC32 of their name.
 
 ## Level Area
 
@@ -101,10 +158,10 @@ This structure is of size 0x2DEE0.
 
 | Offset | Type | Description |
 |--------|------|-------------|
-| 00 | u8 | ranges from 00 to 09 |
-| 01 | u8 | values seen: 00, 01, 02, 03, 04 |
+| 00 | u8 | course theme (00..09) |
+| 01 | u8 | autoscroll type (00..04) |
 | 02 | u8 | values seen: 00, 01 |
-| 03 | u8 | 00 in main areas of all supplied levels, 01 in some sub areas |
+| 03 | u8 | level orientation: 00 = horizontal, 01 = vertical |
 | 04 | u8 | ranges from 00 to 0C in main areas, 00 to A1 in sub areas |
 | 05 | u8 | values seen: 00, 01, 02 |
 | 06 | u8 | values seen: 00, 01, 02, 03 |
@@ -113,7 +170,7 @@ This structure is of size 0x2DEE0.
 | 0C | u32 | usable height |
 | 10 | u32 | seems to be always zero |
 | 14 | u32 | zero everywhere except for sub-areas in Ancient Seesaw Fortress (0x230), Bing Bang Boom (0xE0), Fire Koopa Clown Carnage (0x1C0) |
-| 18 | u32 | some kinda bitfield, values 0, 2, 3 spotted |
+| 18 | u32 | some kinda bitfield :: &2 means night mode, &1 is unknown |
 | 1C | u32 | object count |
 | 20 | u32 | free-standing sound effect count |
 | 24 | u32 | snake block count |
