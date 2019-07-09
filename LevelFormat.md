@@ -48,16 +48,16 @@ Size 0x200. Stores metadata about the level itself. Some of this is still unknow
 | 0F | u8 | Clear condition type (more below) |
 | 10 | u32 | Clear condition object (CRC32 of more below) |
 | 14 | u32 | Unknown |
-| 18 | u32 | Unknown |
+| 18 | u32 | Management flags: &1 always seems to be set, &2 shows that a level has passed its Clear Check, &0x10 shows that the level may not be uploaded |
 | 1C | u32 | Always seems to be zeroes |
-| 20 | u32 | Always seems to be 0xFFFFFFFF |
+| 20 | u32 | Time taken in Clear Check (units unknown), or 0xFFFFFFFF if the level has not been cleared |
 | 24 | u32 | Initialised to a random value when a level is created |
+| 28 | u32 | Unknown, related somehow to levels being uploaded to Course World (level appears as "Uploaded" in Coursebot's My Courses if this is non-zero) |
 | .. | .. | .. zero in all files .. |
 | F0 | u8 | Unknown, usually FF but sometimes set to other things |
 | F1 | char[3] | Game style, null-terminated: `M1`, `M3`, `MW`, `WU`, `3W` |
 | F4 | wchar16[33] | Course name, null-terminated, UCS-2 |
-| 136 | wchar16[76] | Course description, null-terminated, UCS-2 |
-| .. | .. | .. zero up to 0x200 (exclusive) |
+| 136 | wchar16[101] | Course description, null-terminated, UCS-2 (game only lets you enter up to 75, but there's space for 100) |
 
 ## Clear Conditions
 
